@@ -1,0 +1,240 @@
+syntax = "proto3";
+
+package protos;
+
+// for grpc-gateway
+//#gw#import "google/api/annotations.proto";
+
+service PureMediaService {
+    //上传文件
+    rpc UploadFile (UploadFileRequest) returns (UploadFileReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#  post: "/v1/pure_media/upload_file"
+        //#gw#  body: "*"
+        //#gw#  };
+    }
+    //
+    rpc ListUploadFile (ListUploadFileRequest) returns (ListUploadFileReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#  post: "/v1/pure_media/list_upload_file"
+        //#gw#  body: "*"
+        //#gw#  };
+    }
+
+    //图片分析
+    rpc ImgAnalyze (ImgRequest) returns (ImgReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#  post: "/v1/pure_media/img_analyze"
+        //#gw#  body: "*"
+        //#gw#  };
+
+    }
+    //队列图片分析
+    rpc ListImgAnalyze (ListImgRequest) returns (ListImgReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#  post: "/v1/pure_media/list_img_analyze"
+        //#gw#  body: "*"
+        //#gw#  };
+    }
+
+    // 获取视频信息
+    rpc YoutubeVideo (YoutubeVideoRequest) returns (YoutubeVideoReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#	post: "/v1/pure_media/watch"
+        //#gw#	body: "*"
+        //#gw#  };
+    }
+
+    // 根据图片URL鉴黄
+    rpc ImgCensor (ImgCensorRequest) returns (ImgCensorReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#	post: "/v1/pure_media/censor"
+        //#gw#	body: "*"
+        //#gw#  };
+    }
+    //添加鉴黄队列
+    rpc AddImgtoBuckets (AddRequest) returns (AddReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#	post: "/v1/pure_media/add_image"
+        //#gw#	body: "*"
+        //#gw#  };
+    }
+
+    //下载YouTube视频
+    rpc YoutubeDownload (DLRequest) returns (DLReply) {
+        //#gw#  option (google.api.http) = {
+        //#gw#	post: "/v1/pure_media/youtube_dl"
+        //#gw#	body: "*"
+        //#gw#  };
+    }
+
+}
+
+message DLRequest {
+    //视频地址
+    string videoUrl = 1;
+    //下载格式 默认1080P
+    string format = 2;
+
+}
+
+message DLReply {
+    string fid = 1;
+    //添加结果
+    string context = 2;
+
+
+}
+
+message AddRequest {
+    //图片URL
+    string imgUrl = 1;
+    //图片名称
+    string imgName = 2;
+}
+
+message AddReply {
+    string imgId = 1;
+    //添加结果
+    string result = 2;
+
+
+}
+
+message ImgCensorRequest {
+    //图片URL
+    string imgUrl = 1;
+
+
+}
+message ImgCensorReply {
+    //鉴黄结果
+    string result = 1;
+
+}
+
+message UploadFileRequest {
+
+    //文件url
+    string fileUrl = 1;
+    //Tags,方便搜索
+    repeated string tags = 2;
+    // FileType
+    string fileType = 3;
+    //s3 bucket
+    string bucket = 4;
+    //前缀
+    string prefix = 5;
+
+}
+
+message UploadFileReply {
+    //S3文件id
+    string fileId = 1;
+    //文件大小，单位：Bytes
+    int64 fileSize = 2;
+    //文件哈希
+    string fileSha256 = 3;
+    //文件类型image
+    string fileType = 4;
+    //图片类型
+    string imageFormat = 5;
+    //图片宽度
+    int64 imageWidth = 6;
+    //图片高度
+    int64 imageHeight = 7;
+    //图片颜色主色调
+    string colorExtractorRGB = 8;
+    //图片颜色主色调
+    string colorExtractorHEX = 9;
+    //标签方便搜索
+    repeated string tags = 10;
+    //上下文，JSON类型
+    bytes context = 11;
+    //创建时间
+    string createdAt = 12;
+
+}
+
+
+message ListUploadFileRequest {
+
+    repeated UploadFileRequest upRequest = 1;
+
+}
+
+message ListUploadFileReply {
+
+    repeated UploadFileReply upReply = 2;
+
+}
+
+message ImgRequest {
+    //图片地址
+    string downloadUrl = 1;
+}
+
+message ImgReply {
+    //size，文件大小，单位：Bytes
+    int64 size = 1;
+    //format，图片类型，如png、jpeg、gif、bmp等
+    string format = 2;
+    //width，图片宽度，单位：像素(px)
+    int64 width = 3;
+    //height，图片高度，单位：像素(px)
+    int64 height = 4;
+    //图片颜色主色调RGB
+    string colorExtractorRGB = 5;
+    //colorExtractor，图片颜色主色调
+    string colorExtractorHEX = 6;
+    //ColorModel,彩色空间，如palette16、ycbcr等。
+    string colorModel = 7;
+    //帧数，gif 图片会返回此项。
+    int64 frameNumber = 8;
+    //图片EXIF信息
+    Exif exif = 9;
+    //url
+    string url = 10;
+
+}
+message Exif {
+    string dateTime = 1;
+    string exposureBiasValue = 2;
+    string exposureTime = 3;
+    string model = 4;
+    string iSOSpeedRatings = 5;
+    string resolutionUnit = 6;
+}
+
+
+message ListImgRequest {
+    //ImgRequest
+    repeated ImgRequest request = 1;
+
+}
+
+message ListImgReply {
+    repeated ImgReply imgReply = 1;
+}
+
+
+message YoutubeVideoRequest {
+    // 视频地址
+    string link = 1;
+}
+
+message YoutubeVideoReply {
+    // youtube id
+    string id = 1;
+    // 标题
+    string title = 2;
+    // 截图
+    string screenYoutubeUrl = 3;
+    // 截图文件id(s3key)
+    string screenFid = 4;
+    // 播放长度
+    string lengthSeconds = 5;
+    // 关键字
+    repeated string keyWords = 6;
+}
+
